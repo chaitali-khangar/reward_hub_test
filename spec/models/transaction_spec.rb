@@ -11,6 +11,7 @@ RSpec.describe Transaction, type: :model do
       existing_transaction = FactoryBot.create(:transaction, user: user)
       new_transaction = FactoryBot.build(:transaction, user: user, external_id: existing_transaction.external_id)
       expect(new_transaction).not_to be_valid
+      expect(new_transaction.errors[:external_id]).to include("has already been taken")
     end
 
     it { should validate_numericality_of(:amount).is_greater_than(0) }
@@ -57,7 +58,7 @@ RSpec.describe Transaction, type: :model do
   describe 'factory' do
     let(:user) { FactoryBot.create(:user) }
 
-    it 'FactoryBot.creates a valid transaction' do
+    it 'creates a valid transaction' do
       transaction = FactoryBot.build(:transaction, user: user)
       expect(transaction).to be_valid
     end
