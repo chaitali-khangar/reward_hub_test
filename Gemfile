@@ -49,6 +49,10 @@ group :development, :test do
   gem 'debug', platforms: %i[mri windows]
   gem 'rubocop-rails',       '2.25.1', require: false
   gem 'rubocop-performance', '1.21.1', require: false
+
+  gem 'rspec-rails',       '6.1.3'
+  gem 'factory_bot_rails', '6.4.3'
+  gem 'faker'
 end
 
 group :development do
@@ -68,4 +72,5 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem 'capybara'
   gem 'selenium-webdriver'
+  gem 'shoulda-matchers', '~> 6.0'
 end
