@@ -10,7 +10,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_05_13_180804) do
+ActiveRecord::Schema[7.1].define(version: 2025_05_13_182556) do
+  create_table "rewards", force: :cascade do |t|
+    t.string "name", null: false
+    t.text "description"
+    t.integer "points_req", null: false
+    t.datetime "valid_from", null: false
+    t.datetime "valid_until", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_rewards_on_name", unique: true
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.decimal "amount", precision: 10, scale: 2, null: false
