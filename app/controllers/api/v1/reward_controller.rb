@@ -2,8 +2,13 @@ module Api
   module V1
     class RewardController < BaseController
       def available
-        @rewards = @user.rewards.where(points_req: ..@user.total_points)
+        @rewards = Reward.where(points_req: ..@user.total_points)
         render :available, status: :ok
+      end
+
+      def claimed
+        @rewards = @user.claimed_rewards
+        render :claimed, status: :ok
       end
 
       def claim

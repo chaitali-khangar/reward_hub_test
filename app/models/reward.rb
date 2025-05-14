@@ -1,6 +1,6 @@
 class Reward < ApplicationRecord
   validates :name, presence: true
-  validates :points_req, presence: true, numericality: { greater_than: 0 }
+  validates :points_req, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :valid_from, presence: true
   validates :valid_until, presence: true
   validate :valid_until_after_valid_from

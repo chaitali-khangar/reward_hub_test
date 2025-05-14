@@ -7,7 +7,7 @@ RSpec.describe Reward, type: :model do
     it { should validate_presence_of(:valid_from) }
     it { should validate_presence_of(:valid_until) }
 
-    it { should validate_numericality_of(:points_req).is_greater_than(0) }
+    it { should validate_numericality_of(:points_req).is_greater_than_or_equal_to(0) }
 
     context 'when creating a reward' do
       let(:reward) { FactoryBot.build(:reward) }

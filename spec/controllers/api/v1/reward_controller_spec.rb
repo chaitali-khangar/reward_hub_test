@@ -26,6 +26,50 @@ RSpec.describe Api::V1::RewardController, type: :controller do
     end
   end
 
+  describe 'GET #claimed' do
+    let!(:claimed_reward_1) { FactoryBot.create(:reward, name: 'Free Coffee') }
+    let!(:claimed_reward_2) { FactoryBot.create(:reward, name: 'Free Movie Ticket') }
+    let!(:user_claimed_reward_1) do
+      FactoryBot.create(:user_reward, user: user, reward: claimed_reward_1, status: :claimed)
+    end
+    let!(:user_claimed_reward_2) do
+      FactoryBot.create(:user_reward, user: user, reward: claimed_reward_2, status: :claimed)
+    end
+
+    context 'when the user has claimed rewards' do
+      it 'returns a successful response' do
+        get :claimed, format: :json
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns the claimed rewards in JSON format' do
+        get :claimed, format: :json
+        json_response = response.parsed_body
+        expect(json_response['claimed_rewards'].size).to eq(2)
+
+        reward_names = json_response['claimed_rewards'].pluck('name')
+        expect(reward_names).to include('Free Coffee', 'Free Movie Ticket')
+      end
+    end
+
+    context 'when the user has no claimed rewards' do
+      before do
+        user.user_rewards.where(status: :claimed).destroy_all
+      end
+
+      it 'returns a successful response' do
+        get :claimed, format: :json
+        expect(response).to have_http_status(:ok)
+      end
+
+      it 'returns an empty list of rewards' do
+        get :claimed, format: :json
+        json_response = response.parsed_body
+        expect(json_response['claimed_rewards']).to eq([])
+      end
+    end
+  end
+
   describe 'POST #claim' do
     context 'when reward exists and points are sufficient' do
       it 'claims the reward successfully' do

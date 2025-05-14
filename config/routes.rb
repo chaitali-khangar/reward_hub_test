@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         end
         collection do
           get 'available'
+          get 'claimed'
         end
       end
     end

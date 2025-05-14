@@ -1,0 +1,12 @@
+{
+  "claimed_rewards": [
+    <% @rewards.each do |reward| %>
+      {
+        "id": <%= reward.id %>,
+        "name": "<%= reward.name %>",
+        "valid_from": "<%= reward.valid_from %>",
+        "valid_until": "<%= reward.valid_until %>"
+      }<%= ',' unless reward == @rewards.last %>
+    <% end %>
+  ]
+}
