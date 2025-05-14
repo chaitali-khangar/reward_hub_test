@@ -15,7 +15,7 @@ module Rewards
 
       return claim_reward if !@check_reward_already_granted || eligible_for_coffee_reward?
 
-      { success: false, message: 'Reward already granted' }
+      { success: true, message: 'Reward already granted' }
     end
 
     private
