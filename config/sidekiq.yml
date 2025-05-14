@@ -7,14 +7,14 @@
   monthly_reward:
     cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
     class: MonthlyRewardWorker
-    queue: default
+    queue: cron
 
   birthday_reward:
     cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
     class: BirthdayCoffeeRewardWorker
-    queue: default
+    queue: cron
 
   movie_ticket_reward:
     cron: "0 0 * * *"  # Run daily at midnight
     class: MovieTicketRewardWorker
-    queue: default
+    queue: cron
