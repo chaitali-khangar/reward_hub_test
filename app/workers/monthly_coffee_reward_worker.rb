@@ -10,12 +10,14 @@ class MonthlyCoffeeRewardWorker
       # Right now harcorded but we can use coffee_reward.point_req
       next if monthly_points(user:, start_date:, end_date:) <= 100
 
-      _, error = Rewards::CoffeeRewardService.new(user:,
+      response = Rewards::CoffeeRewardService.new(user:,
                                                   start_date:,
                                                   end_date:,
                                                   check_reward_already_granted: true).call
 
-      Rails.logger error if error
+      unless response[:success]
+        Rails.logger.error("Failed to grant coffee reward to #{user.name}: #{response[:message]}")
+      end
     end
   end
 

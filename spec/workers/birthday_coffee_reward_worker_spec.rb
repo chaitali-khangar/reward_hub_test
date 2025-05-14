@@ -16,7 +16,6 @@ RSpec.describe BirthdayCoffeeRewardWorker, type: :worker do
 
   describe '#perform' do
     it 'calculates the correct date range for the current month' do
-      Time.zone.today.month
       start_date = Time.zone.today.beginning_of_month
       end_date = Time.zone.today.end_of_month
 
@@ -27,8 +26,8 @@ RSpec.describe BirthdayCoffeeRewardWorker, type: :worker do
     it 'calls the CoffeeRewardService for users with birthdays in the current month' do
       expect(Rewards::CoffeeRewardService).to receive(:new).with(
         user: birthday_user,
-        start_date: kind_of(Date),
-        end_date: kind_of(Date),
+        start_date: Time.zone.today.beginning_of_month,
+        end_date: Time.zone.today.end_of_month,
         check_reward_already_granted: false
       ).and_call_original
 

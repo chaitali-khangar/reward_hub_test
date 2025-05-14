@@ -8,12 +8,16 @@ class BirthdayCoffeeRewardWorker
 
     # For sqlite
     User.where("CAST(strftime('%m', birthdate) AS INTEGER) = ?", current_month).find_each do |user|
-      Rewards::CoffeeRewardService.new(
+      response = Rewards::CoffeeRewardService.new(
         user:,
         start_date:,
         end_date:,
         check_reward_already_granted: false
       ).call
+
+      unless response[:success]
+        Rails.logger.error("Failed to grant coffee reward to #{user.name} for birthday: #{response[:message]}")
+      end
     end
   end
 end
