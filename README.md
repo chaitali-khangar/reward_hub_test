@@ -1,24 +1,30 @@
-# README
+# Reward Hub
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+Reward Hub is a loyalty program Rails application that allows users to accumulate points through transactions and claim rewards.
 
-Things you may want to cover:
+## Installation
 
-* Ruby version
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/username/reward_hub.git
+   cd reward_hub
 
-* System dependencies
+2. **Install Ruby Dependencies:**
+   ```bash
+   bundle install
 
-* Configuration
+3. **Run Database Migrations and Seed Data:**
+   ```bash
+   rails db:create
+   rails db:migrate
+   rails db:seed
 
-* Database creation
+4. **Run rails s:**
+   ```bash
+   rails s
 
-* Database initialization
+## Postman API Collection
+	[Reward Hub API.postman_collection.json](https://github.com/user-attachments/files/20211159/Reward.Hub.API.postman_collection.json)
 
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## Documentation
+https://www.notion.so/Reward-Hub-1f2ed51d5d1e80d2b122f3fb3a8c265a?pvs=4
