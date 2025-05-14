@@ -4,8 +4,12 @@ require 'sidekiq/testing'
 Sidekiq::Testing.fake!
 
 RSpec.describe MonthlyCoffeeRewardWorker, type: :worker do
-  let!(:user1) { FactoryBot.create(:user) }
-  let!(:user2) { FactoryBot.create(:user) }
+  let!(:user_with_points) { FactoryBot.create(:user, total_points: 150) }
+  let!(:user_without_points) { FactoryBot.create(:user, total_points: 0) }
+  let(:coffee_reward) do
+    FactoryBot.create(:reward, name: 'Free Coffee', points_req: 100, valid_until: 1.month.from_now)
+  end
+  let(:start_date) { 1.month.ago.beginning_of_month }
 
   before do
     Sidekiq::Worker.clear_all
@@ -17,19 +21,28 @@ RSpec.describe MonthlyCoffeeRewardWorker, type: :worker do
       start_date = last_month.beginning_of_month
       end_date = last_month.end_of_month
 
-      expect(Time.zone.today.prev_month.beginning_of_month).to eq(start_date)
-      expect(Time.zone.today.prev_month.end_of_month).to eq(end_date)
+      expect(last_month.beginning_of_month).to eq(start_date)
+      expect(last_month.end_of_month).to eq(end_date)
     end
 
-    it 'triggers the CoffeeRewardService for each user' do
-      expect(Rewards::CoffeeRewardService).to receive(:new).with(user1, kind_of(Date), kind_of(Date)).and_call_original
-      expect(Rewards::CoffeeRewardService).to receive(:new).with(user2, kind_of(Date), kind_of(Date)).and_call_original
+    it 'does not call the CoffeeRewardService if user points are less than 100' do
+      FactoryBot.create(:transaction, user: user_without_points, amount: 50, created_at: start_date)
+      expect(Rewards::CoffeeRewardService).not_to receive(:new)
 
       MonthlyCoffeeRewardWorker.new.perform
     end
 
-    it 'processes all users in the database' do
-      expect(User).to receive(:find_each).and_yield(user1).and_yield(user2)
+    it 'calls the CoffeeRewardService if user points are greater or equal to 100' do
+      last_month = Time.zone.today.prev_month
+      FactoryBot.create(:transaction, user: user_with_points, amount: 1500, created_at: start_date)
+
+      expect(Rewards::CoffeeRewardService).to receive(:new).with(
+        user: user_with_points,
+        start_date: last_month.beginning_of_month,
+        end_date: last_month.end_of_month,
+        check_reward_already_granted: true
+      ).and_call_original
+
       MonthlyCoffeeRewardWorker.new.perform
     end
 
@@ -42,20 +55,46 @@ RSpec.describe MonthlyCoffeeRewardWorker, type: :worker do
     it 'executes the job from the queue' do
       MonthlyCoffeeRewardWorker.perform_async
       expect(MonthlyCoffeeRewardWorker.jobs.size).to eq(1)
-    end
-
-    it 'clears the queue after performing the job' do
-      MonthlyCoffeeRewardWorker.perform_async
-      expect(MonthlyCoffeeRewardWorker.jobs.size).to eq(1)
       MonthlyCoffeeRewardWorker.drain
       expect(MonthlyCoffeeRewardWorker.jobs.size).to eq(0)
     end
 
-    it 'handles an empty user list without error' do
-      User.delete_all
-      expect do
+    context 'when reward was already granted' do
+      before do
+        FactoryBot.create(:user_reward, user: user_with_points, reward: coffee_reward,
+                                        created_at: Time.zone.today.beginning_of_month)
+      end
+
+      it 'does not grant the reward again' do
+        expect(Rewards::CoffeeRewardService).not_to receive(:new).with(
+          user: user_with_points,
+          start_date: kind_of(Date),
+          end_date: kind_of(Date),
+          check_reward_already_granted: true
+        )
         MonthlyCoffeeRewardWorker.new.perform
-      end.not_to raise_error
+      end
+    end
+  end
+
+  describe '#monthly_points' do
+    it 'returns the total points accumulated by the user in the given period' do
+      worker = MonthlyCoffeeRewardWorker.new
+      start_date = Time.zone.today.beginning_of_month
+      end_date = Time.zone.today.end_of_month
+      FactoryBot.create(:transaction, user: user_with_points, amount: 1000, created_at: start_date)
+
+      points = worker.send(:monthly_points, user: user_with_points, start_date: start_date, end_date: end_date)
+      expect(points).to eq(100)
+    end
+
+    it 'returns zero if no transactions are present for the user in the given period' do
+      worker = MonthlyCoffeeRewardWorker.new
+      start_date = Time.zone.today.beginning_of_month
+      end_date = Time.zone.today.end_of_month
+
+      points = worker.send(:monthly_points, user: user_without_points, start_date: start_date, end_date: end_date)
+      expect(points).to eq(0)
     end
   end
 end

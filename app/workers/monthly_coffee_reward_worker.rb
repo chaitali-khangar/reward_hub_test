@@ -7,7 +7,21 @@ class MonthlyCoffeeRewardWorker
     end_date = last_month.end_of_month
 
     User.find_each do |user|
-      Rewards::CoffeeRewardService.new(user, start_date, end_date).call
+      # Right now harcorded but we can use coffee_reward.point_req
+      next if monthly_points(user:, start_date:, end_date:) <= 100
+
+      _, error = Rewards::CoffeeRewardService.new(user:,
+                                                  start_date:,
+                                                  end_date:,
+                                                  check_reward_already_granted: true).call
+
+      Rails.logger error if error
     end
   end
+
+  private
+
+    def monthly_points(user:, start_date:, end_date:)
+      user.transactions.total_points_in_period(start_date, end_date)
+    end
 end

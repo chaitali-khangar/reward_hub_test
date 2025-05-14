@@ -8,3 +8,8 @@
     cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
     class: MonthlyRewardWorker
     queue: default
+
+  birthday_reward:
+    cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
+    class: BirthdayCoffeeRewardWorker
+    queue: default

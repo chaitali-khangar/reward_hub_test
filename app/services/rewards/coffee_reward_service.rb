@@ -1,40 +1,37 @@
 module Rewards
   class CoffeeRewardService
-    def initialize(user, start_date, end_date)
+    attr_reader :user
+
+    def initialize(user:, start_date:, end_date:, check_reward_already_granted:)
       @user = user
       @start_date = start_date
       @end_date = end_date
+      @check_reward_already_granted = check_reward_already_granted
     end
 
     def call
-      return { success: false, message: 'User not found' } unless @user
+      return { success: false, message: 'User not found' } unless user
       return { success: false, message: 'Reward not found' } unless coffee_reward
 
-      return { success: false, message: 'Points not sufficient' } if monthly_points <= 100
-      return { success: false, message: 'Reward already granted' } if reward_already_granted?
+      return claim_reward if !@check_reward_already_granted || eligible_for_coffee_reward?
 
-      claim_reward
+      { success: false, message: 'Reward already granted' }
     end
 
     private
 
       def eligible_for_coffee_reward?
-        # Right now harcorded but we can use coffee_reward.point_req
-        monthly_points >= 100 && !reward_already_granted?
-      end
-
-      def monthly_points
-        @user.transactions.total_points_in_period(@start_date, @end_date)
+        !reward_already_granted?
       end
 
       def reward_already_granted?
-        @user.user_rewards
-             .where(reward: coffee_reward)
-             .exists?(created_at: @start_date..@end_date)
+        user.user_rewards
+            .where(reward: coffee_reward)
+            .exists?(created_at: @start_date..@end_date)
       end
 
       def claim_reward
-        result = Rewards::ClaimService.new(@user, coffee_reward).call
+        result = Rewards::ClaimService.new(user, coffee_reward).call
         if result[:success]
           { success: true, message: 'Free Coffee reward claimed successfully' }
         else
