@@ -8,6 +8,8 @@ class User < ApplicationRecord
   validates :total_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
   has_many :transactions, dependent: :destroy
+  has_many :user_rewards, dependent: :destroy
+  has_many :rewards, through: :user_rewards
 
   before_validation :generate_api_token, on: :create
 

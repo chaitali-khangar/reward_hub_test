@@ -5,6 +5,9 @@ class Reward < ApplicationRecord
   validates :valid_until, presence: true
   validate :valid_until_after_valid_from
 
+  has_many :user_rewards, dependent: :destroy
+  has_many :users, through: :user_rewards
+
   private
 
     def valid_until_after_valid_from

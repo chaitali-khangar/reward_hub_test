@@ -11,6 +11,15 @@ Rails.application.routes.draw do
       get "/me" => "user#me"
 
       resources :transactions, only: [:create, :index]
+
+      resources :reward, only: [] do
+        member do
+          post 'claim'
+        end
+        collection do
+          get 'available'
+        end
+      end
     end
   end
 end
