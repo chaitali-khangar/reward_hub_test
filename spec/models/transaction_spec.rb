@@ -74,4 +74,53 @@ RSpec.describe Transaction, type: :model do
       expect(transaction1.external_id).not_to eq(transaction2.external_id)
     end
   end
+
+  describe '#calculate_points' do
+    let!(:user) { FactoryBot.create(:user, country: 'USA') }
+
+    context 'when the transaction is domestic' do
+      it 'calculates the correct points' do
+        transaction = FactoryBot.create(:transaction, user: user, amount: 250, country: 'USA')
+        expect(transaction.send(:calculate_points)).to eq(20)
+      end
+    end
+
+    context 'when the transaction is foreign' do
+      it 'calculates double points' do
+        transaction = FactoryBot.create(:transaction, user: user, amount: 250, country: 'India')
+        expect(transaction.send(:calculate_points)).to eq(40)
+      end
+    end
+
+    context 'when the transaction amount is less than $100' do
+      it 'awards zero points' do
+        transaction = FactoryBot.create(:transaction, user: user, amount: 50, country: 'USA')
+        expect(transaction.send(:calculate_points)).to eq(0)
+      end
+    end
+  end
+
+  describe 'points update after transaction creation' do
+    before(:each) do
+      @user = FactoryBot.create(:user, country: 'USA')
+    end
+
+    it 'updates user points for domestic transactions' do
+      expect do
+        FactoryBot.create(:transaction, user: @user, amount: 300, country: 'USA')
+      end.to change { @user.reload.total_points }.by(30)
+    end
+
+    it 'updates user points for foreign transactions' do
+      expect do
+        FactoryBot.create(:transaction, user: @user, amount: 300, country: 'Canada')
+      end.to change { @user.reload.total_points }.by(60)
+    end
+
+    it 'does not update points if the amount is insufficient' do
+      expect do
+        FactoryBot.create(:transaction, user: @user, amount: 80, country: 'USA')
+      end.not_to(change { @user.reload.total_points })
+    end
+  end
 end
