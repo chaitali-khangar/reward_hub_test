@@ -13,3 +13,8 @@
     cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
     class: BirthdayCoffeeRewardWorker
     queue: default
+
+  movie_ticket_reward:
+    cron: "0 0 * * *"  # Run daily at midnight
+    class: MovieTicketRewardWorker
+    queue: default
