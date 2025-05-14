@@ -20,8 +20,10 @@ RSpec.describe Api::V1::UserController, type: :controller do
         expect(response).to have_http_status(:created)
         json = response.parsed_body
         expect(json['message']).to eq('User created successfully')
-        expect(json['user']['name']).to eq('John Doe')
-        expect(json['user']['email']).to eq('john@example.com')
+        expect(json['user']).to include(
+          'name' => 'John Doe',
+          'email' => 'john@example.com'
+        )
       end
     end
 

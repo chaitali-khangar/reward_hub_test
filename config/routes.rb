@@ -9,6 +9,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :user, only: [:create]
       get "/me" => "user#me"
+
+      resources :transactions, only: [:create, :index]
     end
   end
 end

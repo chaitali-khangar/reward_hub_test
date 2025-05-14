@@ -7,6 +7,8 @@ class User < ApplicationRecord
   validates :country, presence: true
   validates :total_points, presence: true, numericality: { greater_than_or_equal_to: 0 }
 
+  has_many :transactions, dependent: :destroy
+
   before_validation :generate_api_token, on: :create
 
   private

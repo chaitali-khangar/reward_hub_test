@@ -1,0 +1,5 @@
+[
+  <% @transactions.each do |transaction| %>
+    <%= render partial: 'transaction', locals: { transaction: transaction } %><%= ',' unless transaction == @transactions.last %>
+  <% end %>
+]
