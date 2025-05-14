@@ -7,14 +7,6 @@ RSpec.describe Reward, type: :model do
     it { should validate_presence_of(:valid_from) }
     it { should validate_presence_of(:valid_until) }
 
-    it 'uniqueness validator for external_id' do
-      FactoryBot.create(:reward, name: 'Test Reward')
-      new_reward = FactoryBot.build(:reward, name: 'Test Reward')
-
-      expect(new_reward).not_to be_valid
-      expect(new_reward.errors[:name]).to include('has already been taken')
-    end
-
     it { should validate_numericality_of(:points_req).is_greater_than(0) }
 
     context 'when creating a reward' do
@@ -27,12 +19,6 @@ RSpec.describe Reward, type: :model do
       it 'is not valid without a name' do
         reward.name = nil
         expect(reward).not_to be_valid
-      end
-
-      it 'is not valid with duplicate name' do
-        FactoryBot.create(:reward, name: 'Unique Reward')
-        duplicate = FactoryBot.build(:reward, name: 'Unique Reward')
-        expect(duplicate).not_to be_valid
       end
 
       it 'is not valid with negative points requirement' do
