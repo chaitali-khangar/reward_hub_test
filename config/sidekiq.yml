@@ -1,0 +1,10 @@
+:concurrency: 5
+:queues:
+  - default
+  - cron
+
+:cron:
+  monthly_reward:
+    cron: "0 0 1 * *" # Runs at midnight on the 1st of every month
+    class: MonthlyRewardWorker
+    queue: default
