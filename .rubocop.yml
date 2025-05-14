@@ -39,3 +39,9 @@ Bundler/OrderedGems:
 
 Style/FrozenStringLiteralComment:
   Enabled: false
+
+Metrics/ClassLength:
+  Enabled: false
+
+Metrics/BlockLength:
+  Enabled: false
