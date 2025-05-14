@@ -62,8 +62,12 @@ RSpec.describe BirthdayCoffeeRewardWorker, type: :worker do
     end
 
     it 'logs successful reward grant' do
-      allow_any_instance_of(Rewards::CoffeeRewardService).to receive(:call).and_return({ success: true,
-                                                                                         message: 'Reward claimed successfully' })
+      allow_any_instance_of(Rewards::CoffeeRewardService)
+        .to receive(:call)
+        .and_return({
+                      success: true,
+                      message: 'Reward claimed successfully'
+                    })
       expect(Rails.logger).not_to receive(:error)
 
       BirthdayCoffeeRewardWorker.new.perform
