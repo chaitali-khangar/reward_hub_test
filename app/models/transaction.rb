@@ -7,6 +7,11 @@ class Transaction < ApplicationRecord
 
   after_create :calculate_and_update_points
 
+  scope :total_points_in_period, lambda { |start_date, end_date|
+    where(created_at: start_date..end_date)
+      .sum(:amount) / 100 * 10
+  }
+
   def calculate_and_update_points
     earned_points = calculate_points
     user.update(total_points: user.total_points + earned_points)

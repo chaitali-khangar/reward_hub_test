@@ -1,5 +1,5 @@
 class Reward < ApplicationRecord
-  validates :name, presence: true, uniqueness: true
+  validates :name, presence: true
   validates :points_req, presence: true, numericality: { greater_than: 0 }
   validates :valid_from, presence: true
   validates :valid_until, presence: true
@@ -7,6 +7,8 @@ class Reward < ApplicationRecord
 
   has_many :user_rewards, dependent: :destroy
   has_many :users, through: :user_rewards
+
+  scope :active, -> { where(valid_until: DateTime.now..) }
 
   private
 
