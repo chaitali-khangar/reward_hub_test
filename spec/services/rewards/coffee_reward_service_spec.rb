@@ -71,7 +71,7 @@ RSpec.describe Rewards::CoffeeRewardService, type: :service do
       it 'does not grant the reward again' do
         result = Rewards::CoffeeRewardService.new(user: user, start_date: start_date, end_date: end_date,
                                                   check_reward_already_granted: true).call
-        expect(result[:success]).to be true
+        expect(result[:success]).to be false
         expect(result[:message]).to eq('Reward already granted')
       end
     end

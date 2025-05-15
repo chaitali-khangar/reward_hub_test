@@ -1,15 +1,16 @@
 module Rewards
-  class MovieTicketRewardService
+  class MovieTicketRewardService < BaseService
     attr_reader :user
 
     def initialize(user:)
       @user = user
+      @reward = reward
     end
 
     def call
-      return { success: false, message: 'User not found' } unless user
-      return { success: false, message: 'Reward not found' } unless movie_reward
-      return { success: true, message: 'Reward already granted' } unless reward_claimed?
+      return error_response('User not found') unless user
+      return error_response('Reward not found') unless reward
+      return error_response('Reward already granted') unless reward_claimed?
 
       claim_movie_ticket
     end
@@ -17,20 +18,20 @@ module Rewards
     private
 
       def reward_claimed?
-        !user.user_rewards.exists?(reward: movie_reward)
+        !user.user_rewards.exists?(reward: reward)
       end
 
       def claim_movie_ticket
-        result = Rewards::ClaimService.new(user, movie_reward).call
+        result = Rewards::ClaimService.new(user, reward).call
         if result[:success]
-          { success: true, message: 'Movie Ticket granted successfully' }
+          success_response('Movie Ticket granted successfully')
         else
-          { success: false, message: result[:message] }
+          error_response(result[:message])
         end
       end
 
-      def movie_reward
-        @movie_reward ||= Reward.active.where(name: 'Free Movie Tickets').first
+      def reward
+        @reward ||= Reward.active.where(name: 'Free Movie Tickets').first
       end
   end
 end

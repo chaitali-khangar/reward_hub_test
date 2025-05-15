@@ -1,4 +1,4 @@
-class BirthdayCoffeeRewardWorker
+class BirthdayCoffeeRewardWorker < BaseRewardWorker
   include Sidekiq::Worker
 
   def perform
@@ -6,18 +6,13 @@ class BirthdayCoffeeRewardWorker
     start_date = Time.zone.today.beginning_of_month
     end_date = Time.zone.today.end_of_month
 
-    # For sqlite
     User.where("CAST(strftime('%m', birthdate) AS INTEGER) = ?", current_month).find_each do |user|
-      response = Rewards::CoffeeRewardService.new(
-        user:,
-        start_date:,
-        end_date:,
-        check_reward_already_granted: false
-      ).call
-
-      unless response[:success]
-        Rails.logger.error("Failed to grant coffee reward to #{user.name} for birthday: #{response[:message]}")
-      end
+      process_reward(user, Rewards::CoffeeRewardService,
+                     'birthday coffee',
+                     user: user,
+                     start_date: start_date,
+                     end_date: end_date,
+                     check_reward_already_granted: false)
     end
   end
 end

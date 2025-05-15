@@ -1,5 +1,5 @@
 module Rewards
-  class CoffeeRewardService
+  class CoffeeRewardService < BaseService
     attr_reader :user
 
     def initialize(user:, start_date:, end_date:, check_reward_already_granted:)
@@ -10,21 +10,21 @@ module Rewards
     end
 
     def call
-      return { success: false, message: 'User not found' } unless user
-      return { success: false, message: 'Reward not found' } unless coffee_reward
+      return error_response('User not found') unless user
+      return error_response('Reward not found') unless coffee_reward
 
-      return claim_reward if !@check_reward_already_granted || eligible_for_coffee_reward?
+      return claim_reward if check_reward_granting?
 
-      { success: true, message: 'Reward already granted' }
+      error_response('Reward already granted')
     end
 
     private
 
-      def eligible_for_coffee_reward?
-        !reward_already_granted?
+      def check_reward_granting?
+        !@check_reward_already_granted || !reward_claimed?
       end
 
-      def reward_already_granted?
+      def reward_claimed?
         user.user_rewards
             .where(reward: coffee_reward)
             .exists?(created_at: @start_date..@end_date)
@@ -33,9 +33,9 @@ module Rewards
       def claim_reward
         result = Rewards::ClaimService.new(user, coffee_reward).call
         if result[:success]
-          { success: true, message: 'Free Coffee reward claimed successfully' }
+          success_response('Free Coffee reward claimed successfully')
         else
-          { success: false, message: result[:message] }
+          error_response(result[:message])
         end
       end
 

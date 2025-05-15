@@ -55,7 +55,7 @@ RSpec.describe Rewards::MovieTicketRewardService, type: :service do
       it 'does not grant the reward again' do
         expect(Rewards::ClaimService).not_to receive(:new).with(user, @movie_reward)
         result = Rewards::MovieTicketRewardService.new(user: user).call
-        expect(result[:success]).to be true
+        expect(result[:success]).to be false
         expect(result[:message]).to eq('Reward already granted')
       end
     end

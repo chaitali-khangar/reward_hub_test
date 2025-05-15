@@ -12,10 +12,9 @@ module Api
       end
 
       def claim
-        reward = Reward.find_by(id: params[:id])
-        render json: { 'error' => 'Reward not found' }, status: :not_found and return if reward.nil?
-
+        reward = Reward.find(params[:id])
         result = Rewards::ClaimService.new(@user, reward).call
+
         if result[:success]
           render json: { 'message' => result[:message] }, status: :ok
         else

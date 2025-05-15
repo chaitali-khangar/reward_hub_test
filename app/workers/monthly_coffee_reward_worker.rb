@@ -1,4 +1,4 @@
-class MonthlyCoffeeRewardWorker
+class MonthlyCoffeeRewardWorker < BaseRewardWorker
   include Sidekiq::Worker
 
   def perform
@@ -7,21 +7,19 @@ class MonthlyCoffeeRewardWorker
     end_date = last_month.end_of_month
 
     User.find_each do |user|
-      # Right now harcorded but we can use coffee_reward.point_req
-      next if monthly_points(user:, start_date:, end_date:) <= 100
+      next unless eligible_for_monthly_coffee?(user, start_date, end_date)
 
-      response = Rewards::CoffeeRewardService.new(user:,
-                                                  start_date:,
-                                                  end_date:,
-                                                  check_reward_already_granted: true).call
-
-      unless response[:success]
-        Rails.logger.error("Failed to grant coffee reward to #{user.name}: #{response[:message]}")
-      end
+      process_reward(user, Rewards::CoffeeRewardService, 'monthly coffee', user: user, start_date: start_date,
+                                                                           end_date: end_date, check_reward_already_granted: true)
     end
   end
 
   private
+
+    def eligible_for_monthly_coffee?(user, start_date, end_date)
+      # Hardcoded points threshold, can be replaced with a dynamic value
+      monthly_points(user:, start_date:, end_date:) > 100
+    end
 
     def monthly_points(user:, start_date:, end_date:)
       user.transactions.total_points_in_period(start_date, end_date)

@@ -1,5 +1,5 @@
 module Rewards
-  class ClaimService
+  class ClaimService < BaseService
     attr_reader :user, :reward
 
     def initialize(user, reward)
@@ -8,19 +8,25 @@ module Rewards
     end
 
     def call
-      return  { success: false, message: 'User not found' } unless @user
-      return  { success: false, message: 'Reward not found' } unless @reward
+      return error_response('User not found') unless user
+      return error_response('Reward not found') unless reward
 
-      return { success: false, message: 'Insufficient points' } if user.total_points < reward.points_req
+      return error_response('Insufficient points') unless sufficient_points?
 
       ActiveRecord::Base.transaction do
         user.update!(total_points: user.total_points - reward.points_req)
         UserReward.create!(user: user, reward: reward, status: 'claimed')
       end
 
-      { success: true, message: 'Reward claimed successfully' }
+      success_response('Reward claimed successfully')
     rescue StandardError => e
-      { success: false, message: e.message }
+      error_response(e.message)
     end
+
+    private
+
+      def sufficient_points?
+        user.total_points >= reward.points_req
+      end
   end
 end
