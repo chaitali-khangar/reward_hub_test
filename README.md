@@ -25,13 +25,12 @@ Reward Hub is a loyalty program Rails application that allows users to accumulat
 
 ---
 ## Postman API Collection
-	[Reward Hub API.postman_collection.json]()
+[Reward Hub API.postman_collection.json](https://github.com/user-attachments/files/20227335/Reward.Hub.API.postman_collection.json)
 
 ---
 ## Documentation
 https://www.notion.so/Reward-Hub-1f2ed51d5d1e80d2b122f3fb3a8c265a?pvs=4
 
----[Reward Hub API.postman_collection.json](https://github.com/user-attachments/files/20227335/Reward.Hub.API.postman_collection.json)
 
 ## API Documentation
 This document provides an overview of the API endpoints available for the application. The API is organized into three main sections:
